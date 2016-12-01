@@ -1,3 +1,5 @@
+#!/usr/bin/python
+#-*- coding: UTF-8 -*-
 __author__ = 'hzlaimingxing'
 
 import sys
@@ -49,6 +51,15 @@ class TestNbsDisk(unittest.TestCase):
             data = f.readlines()
         self.assertFalse(any( row.split()[1] == '/ebs'  for row in data if not row.startswith('#') ))
 
+    def test_is_mounted_already(self):
+        # 由于我们的fake数据里面有相应的记录，所以，这里应该为True
+        self.assertTrue(self.disk._is_mounted_already())
+
+        # 我们清除fake数据里面的最后一条记录，然后再写入，这时候应该为False
+        with open(self.fake_mounts_file, 'w') as f:
+            f.writelines(self.fake_mounts_data[:-1])
+
+        self.assertFalse(self.disk._is_mounted_already())
 
     def tearDown(self):
         if os.path.exists(self.fake_fstab_file):

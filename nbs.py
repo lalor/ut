@@ -62,7 +62,8 @@ class NBS(object):
         """
         with open(self.mounts) as f:
             data = f.readlines()
-        return (row.split()[1] == '/ebs' for row in data)
+        # ut: 这里返回的是一个生成器，然而，我们需要的是一个bool值
+        return any(row.split()[1] == '/ebs' for row in data)
 
 
     def _ensure_device_exists(self, device):
