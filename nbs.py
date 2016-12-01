@@ -46,8 +46,9 @@ class NBS(object):
           ['UUID=a56ac2666309', '/', 'ext4', 'errors=remount-ro', '0', '1'],
           ['/dev/nbs/xdjo', '/ebs', 'xfs', 'defaults', '0', '0'] ] """
         data = [row for row in data if row[1] != '{0}'.format(self.mount_dir) ]
-        with open(self.tmp_fstab) as target:
-            target.writeline(data)
+        # UT: 没有writeline方法，不是以write模式打开
+        with open(self.tmp_fstab, 'w') as target:
+            target.writelines([ '\t'.join(row) for row in data ])
         return execute("sudo mv {0} {1}".format(self.tmp_fstab, self.fstab))
 
 
