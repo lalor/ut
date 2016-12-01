@@ -6,6 +6,7 @@ import sys
 import os
 import tempfile
 import unittest
+import mock
 
 pkg_root = os.path.realpath(os.path.join(os.path.realpath(__file__), os.path.pardir, os.path.pardir))
 sys.path.append(pkg_root)
@@ -60,6 +61,23 @@ class TestNbsDisk(unittest.TestCase):
             f.writelines(self.fake_mounts_data[:-1])
 
         self.assertFalse(self.disk._is_mounted_already())
+
+
+    def test_format_mounted_already(self):
+        self.assertTrue(self.disk.format('/dev/vdc'))
+
+
+    def test_format_device_not_found(self):
+        with open(self.fake_mounts_file, 'w') as f:
+            # 把fstab中的/ebs相关的记录清除，跳过fstab的检查进行第二步检查，即磁盘是否存在的检查
+            f.writelines(self.fake_mounts_data[:-1])
+        self.assertFalse(self.disk.format('/dev/_not_found_vdc'))
+
+    def test_format_op_success(self):
+        # 生成一个临时文件，当nbs.py中，使用os.path.exists判断磁盘是否存在的时候，会返回True
+        temp = tempfile.NamedTemporaryFile()
+        with mock.patch('util.execute', return_value=True):
+            self.assertTrue(self.disk.format(temp.name))
 
     def tearDown(self):
         if os.path.exists(self.fake_fstab_file):
