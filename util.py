@@ -10,10 +10,23 @@ def execute_cmd(cmd):
     stdout, stderr = p.communicate()
     if p.returncode != 0:
         return p.returncode, stderr
-
     return p.returncode, stdout
 
 
-def execute(cmd):
-    ret, out = execute_cmd(cmd)
-    return ret == 0
+def valid_password(pwd):
+
+    if len(pwd) < 3 or len(pwd) > 10:
+        return False
+
+    if pwd[0] not in string.ascii_letters:
+        return False
+
+    legal_chars = string.ascii_letters + string.digits + "_"
+    for char in pwd:
+        if char not in legal_chars:
+            return False
+
+    if pwd[-1] == "_":
+        return False
+
+    return True
